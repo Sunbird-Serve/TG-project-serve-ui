@@ -20,6 +20,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { useSelector } from "react-redux";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import SearchIcon from "@mui/icons-material/Search";
 const configData = require("../../configure");
 
 const Entity = () => {
@@ -45,13 +46,12 @@ const Entity = () => {
         try {
           if (userId) {
             const response = await axios.get(
-              `${configData.ENTITY_DETAILS_GET}/${userId}?page=0&size=100`
+              `${configData.ENTITY_DETAILS_GET}/${userId}?page=0&size=1000`
             );
             const entitie = response.data?.content?.filter(
               (entity) => entity.status !== "Inactive"
             );
             setEntities(entitie);
-            console.log(entities);
           }
         } catch (error) {
           console.log(error);
@@ -66,14 +66,13 @@ const Entity = () => {
       const getEntityDetails = async () => {
         try {
           const response = await axios.get(
-            `${configData.SERVE_NEED}/entity/all?page=0&size=100`
+            `${configData.SERVE_NEED}/entity/all?page=0&size=1000`
           );
           const entities = response.data?.content;
           // ?.filter(
           //   (entity) => entity.status === "Active"
           // );
           setEntities(entities);
-          console.log(entities);
         } catch (error) {
           console.log(error);
         }
@@ -85,7 +84,7 @@ const Entity = () => {
   const COLUMNS = [
     { Header: "Entity Name", accessor: "name" },
     { Header: "Phone", accessor: "mobile" },
-    { Header: "City", accessor: "address_line1" },
+    { Header: "Block", accessor: "address_line1" },
     { Header: "Entity Category", accessor: "category" },
     {
       Header: "Status",
@@ -151,11 +150,9 @@ const Entity = () => {
   };
 
   const editEntity = (entityId) => {
-    console.log(entityId);
     setEdit(true);
     setShowPopup(!showPopup);
     const entityDetails = entities?.filter((entity) => entity.id === entityId);
-    console.log("entityDetails", entityDetails);
     setEntityData(entityDetails);
     setEntityId(entityId);
   };
@@ -165,7 +162,6 @@ const Entity = () => {
   };
 
   const handleRegisterEntity = () => {
-    console.log(showRegisterEntity);
     setShowRegisterEntity(true);
   };
 
@@ -207,18 +203,20 @@ const Entity = () => {
         >
           <Box>
             <Typography variant="body1" color="text.secondary">
-              Here's your Entities Data
+              Your Entity Details
             </Typography>
           </Box>
           <Box marginRight={"2rem"}>
-            <Button
-              variant="outlined"
-              sx={{ textTransform: "none", marginRight: "2rem" }}
-              onClick={handleRegisterEntity}
-            >
-              {" "}
-              Register Your Entity
-            </Button>
+            {!isSAdmin && (
+              <Button
+                variant="outlined"
+                sx={{ textTransform: "none", marginRight: "2rem" }}
+                onClick={handleRegisterEntity}
+              >
+                {" "}
+                Register Your Entity
+              </Button>
+            )}
             <Button
               variant="contained"
               sx={{ textTransform: "none" }}
@@ -227,6 +225,25 @@ const Entity = () => {
               {" "}
               <AddIcon /> Add Entity
             </Button>
+          </Box>
+        </Box>
+        <Box display={"flex"} justifyContent={"flex-start"}>
+          <Box
+            className="boxSearchNeeds"
+            margin={"0.3rem"}
+            display={"flex"}
+            justifyContent={"flex-end"}
+          >
+            <i>
+              <SearchIcon style={{ height: "18px", width: "18px" }} />
+            </i>
+            <input
+              type="search"
+              name="globalfilter"
+              placeholder="Search Entity"
+              value={globalFilter || ""}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+            ></input>
           </Box>
         </Box>
         <Box paddingTop={"1rem"}>
@@ -336,6 +353,7 @@ const Entity = () => {
           needAdminId={userId}
           onEntityUpdate={handleEntityUpdate}
           nCordAssignSuccess={handleAssignEntityToNcord}
+          isSAdmin={true}
         />
       )}
 
@@ -373,10 +391,10 @@ const Entity = () => {
             {edit
               ? "Entity Updated successfully!"
               : entityAssign
-                ? "Entity Assigned successfully!"
-                : assignEntityToNcord
-                  ? "nCoordintor Assigned to Entity successfully!"
-                  : "Entity Created successfully!"}
+              ? "Entity Assigned successfully!"
+              : assignEntityToNcord
+              ? "nCoordintor Assigned to Entity successfully!"
+              : "Entity Created successfully!"}
           </Alert>
         </Snackbar>
       )}

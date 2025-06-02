@@ -40,6 +40,7 @@ const AddEntity = ({
   entityDetails,
   isEdit,
   entityId,
+  isSAdmin,
 }) => {
   const {
     control,
@@ -68,7 +69,7 @@ const AddEntity = ({
     if (isEdit && (!entityDetails || entityDetails?.length === 0)) {
       const getEntityDetails = async () => {
         try {
-          if (needAdminId) {
+          if (needAdminId && !isSAdmin) {
             const response = await axios.get(
               `${configData.ENTITY_DETAILS_GET}/${needAdminId}?page=0&size=100`
             );
@@ -83,7 +84,18 @@ const AddEntity = ({
               category: entityDetails[0]?.category,
               status: entityDetails[0]?.status,
             });
-            console.log(entityDetails[0].status, entityDetails[0].category);
+          }
+          if (isSAdmin) {
+            const response = await axios.get(
+              `${configData.SERVE_NEED}/entity/${entityId}`
+            );
+
+            const entityDetails = response.data;
+            reset({
+              ...entityDetails,
+              category: entityDetails?.category,
+              status: entityDetails?.status,
+            });
           }
         } catch (error) {
           console.log(error);
@@ -96,7 +108,6 @@ const AddEntity = ({
         category: entityDetails[0]?.category || "",
         status: entityDetails[0]?.status,
       });
-      console.log(entityDetails[0].status, entityDetails[0].category);
     }
   }, [isEdit, entityDetails, reset]);
 
@@ -107,12 +118,10 @@ const AddEntity = ({
         category: entityDetails[0]?.category || "",
         status: entityDetails[0]?.status || "",
       });
-      console.log(entityDetails[0].status, entityDetails[0].category);
     }
   }, [entityDetails, reset]);
 
   const onSubmit = async (data) => {
-    console.log("submit");
     const reqBody = {
       name: data?.name,
       category: data?.category,
@@ -138,19 +147,19 @@ const AddEntity = ({
           reqBody
         );
         onEntityAdded();
-      }
-      const entityID = res?.data?.id;
-      console.log(entityID);
-      const onboardReq = {
-        entityId: entityID,
-        userId: needAdminId,
-        userRole: "nAdmin",
-      };
 
-      const entityOnboarding = await axios.post(
-        `${configData.SERVE_NEED}/entity/assign`,
-        onboardReq
-      );
+        const entityID = res?.data?.id;
+        const onboardReq = {
+          entityId: entityID,
+          userId: needAdminId,
+          userRole: "nAdmin",
+        };
+
+        const entityOnboarding = await axios.post(
+          `${configData.SERVE_NEED}/entity/assign`,
+          onboardReq
+        );
+      }
       handlePopupClose();
     } catch (error) {
       console.log(error);
@@ -287,7 +296,7 @@ const AddEntity = ({
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="City"
+                    label="Block"
                     fullWidth
                     margin="normal"
                     error={!!errors.address_line1}

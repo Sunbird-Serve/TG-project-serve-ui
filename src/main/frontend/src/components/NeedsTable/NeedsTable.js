@@ -35,6 +35,7 @@ export const NeedsTable = ({ props, filterByEntity }) => {
   const userData = useSelector((state) => state.user.data);
   const userRole = userData.role;
   const isNAdmin = userRole?.[0] === "nAdmin" ? true : false;
+  const isSAdmin = userRole?.[0] === "sAdmin" ? true : false;
 
   const entityIds = useSelector((state) => state.filter.filteredData);
   //get list of needs raised by user
@@ -398,103 +399,57 @@ export const NeedsTable = ({ props, filterByEntity }) => {
 
   return (
     <div className="wrapTable">
-      <div className="needBar">
-        {/* Tabs */}
-        <div className="needMenu">
-          <div
-            className={`tabNeed ${activeTab === "all" ? "activeNTab" : ""}`}
-            onClick={() => handleTabClick("all")}
-          >
-            All
-          </div>
-          <div
-            className={`tabNeed ${activeTab === "new" ? "activeNTab" : ""}`}
-            onClick={() => handleTabClick("new")}
-          >
-            New
-          </div>
-          <div
-            className={`tabNeed ${activeTab === "approved" ? "activeNTab" : ""}`}
-            onClick={() => handleTabClick("approved")}
-          >
-            Approved
-          </div>
-          <div
-            className={`tabNeed ${activeTab === "nominated" ? "activeNTab" : ""}`}
-            onClick={() => handleTabClick("nominated")}
-          >
-            Nominated
-          </div>
-          <div
-            className={`tabNeed ${activeTab === "assigned" ? "activeNTab" : ""}`}
-            onClick={() => handleTabClick("assigned")}
-          >
-            Assigned
-          </div>
-          <div
-            className={`tabNeed ${activeTab === "fulfilled" ? "activeNTab" : ""}`}
-            onClick={() => handleTabClick("fulfilled")}
-          >
-            Fulfilled
-          </div>
+      {/* Tabs in a single row */}
+      <div className="needTabsBar">
+        <div className="needTabs">
+          <div className={`tabNeed ${activeTab === "all" ? "activeNTab" : ""}`} onClick={() => handleTabClick("all")}>All</div>
+          <div className={`tabNeed ${activeTab === "new" ? "activeNTab" : ""}`} onClick={() => handleTabClick("new")}>New</div>
+          <div className={`tabNeed ${activeTab === "approved" ? "activeNTab" : ""}`} onClick={() => handleTabClick("approved")}>Approved</div>
+          <div className={`tabNeed ${activeTab === "nominated" ? "activeNTab" : ""}`} onClick={() => handleTabClick("nominated")}>Nominated</div>
+          <div className={`tabNeed ${activeTab === "assigned" ? "activeNTab" : ""}`} onClick={() => handleTabClick("assigned")}>Assigned</div>
+          <div className={`tabNeed ${activeTab === "fulfilled" ? "activeNTab" : ""}`} onClick={() => handleTabClick("fulfilled")}>Fulfilled</div>
         </div>
-        {/* Raise Need Button */}
-        {!isNAdmin && <button onClick={gotoRaiseNeed}>Raise Need</button>}
+        {/* Raise Need Button aligned right */}
+        {!isNAdmin && !isSAdmin && (
+          <button className="raiseNeedBtn" onClick={gotoRaiseNeed}>Raise Need</button>
+        )}
       </div>
 
-      {/* Header on top of table: stats and filters */}
-      {!isNAdmin && (
-        <div className="topBarNeedTable">
-          {/*Counts*/}
-          <div className="leftTopBarNeedTable">
+      {/* Counts and Filters in a single row below tabs */}
+      {!isNAdmin && !isSAdmin && (
+        <div className="countsRow">
+          <div className="countsLeft">
             <div className="needCount">
-              <i>
-                <StickyNote2Icon />
-              </i>
+              <i><StickyNote2Icon /></i>
               <span>{filteredData.length}</span>
-              <label className="count-label"> Needs </label>
+              <label className="count-label">Needs</label>
             </div>
             <div className="volunteerCount">
-              <i>
-                <PeopleAltIcon />
-              </i>
+              <i><PeopleAltIcon /></i>
               <span> </span>
               <label className="count-label">Volunteers</label>
             </div>
           </div>
-          {/*Filters*/}
-          <div className="rightTopBarNeedTable">
-            {/* Following are filters on need table */}
+          <div className="filtersRight">
             <div className="boxSearchNeeds">
-              <i>
-                <SearchIcon style={{ height: "18px", width: "18px" }} />
-              </i>
+              <i><SearchIcon style={{ height: "18px", width: "18px" }} /></i>
               <input
                 type="search"
                 name="globalfilter"
                 placeholder="Search need"
                 value={globalFilter || ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
-              ></input>
+              />
             </div>
-            {/*
-          <div className="selectNeedDate">
-            <input type="date" name="selectedDate" value={selectedDate} onChange={handleDateChange} />
-          </div>
-          */}
             <select
               className="selectNeedType"
               name="needTypeId"
               value={needTypeId}
               onChange={handleNeedTypeFilter}
             >
-              <option value="" defaultValue>
-                All Need Types
-              </option>
+              <option value="" defaultValue>All Need Types</option>
               {needTypes.map((ntype, index) => (
-                <option key={index} value={ntype.id}>
-                  {ntype.name}
-                </option>
+                <option key={index} value={ntype.id}>{ntype.name}</option>
               ))}
             </select>
           </div>
