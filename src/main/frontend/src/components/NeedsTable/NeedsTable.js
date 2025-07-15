@@ -25,6 +25,8 @@ import { Box, IconButton, Menu, MenuItem } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { fetchNeeds } from "../../state/needSlice.js";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 const configData = require("../../configure.js");
 
 export const NeedsTable = ({ props, filterByEntity }) => {
@@ -386,7 +388,14 @@ export const NeedsTable = ({ props, filterByEntity }) => {
   //Popup on row click showing nominations and need details
   const [rowData, setRowData] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
   const handleRowClick = (rowData) => {
+    if (rowData?.need?.status?.toLowerCase() === "fulfilled") {
+      setSnackbarMsg("This Need is Fulfilled");
+      setSnackbarOpen(true);
+      return;
+    }
     setRowData(rowData);
     setShowPopup(!showPopup);
   };
@@ -456,45 +465,47 @@ export const NeedsTable = ({ props, filterByEntity }) => {
         </div>
       )}
       {/* Following is TABLE that loads list of needs and its details */}
-      <table className="tableNeedList">
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render("Header")}
-                  <span>
-                    <FaSort />
-                  </span>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {page.map((row) => {
-            prepareRow(row);
-            return (
-              <tr
-                {...row.getRowProps()}
-                onClick={() => handleRowClick(row.original)}
-              >
-                {row.cells.map((cell) => {
-                  return (
-                    <td
-                      {...cell.getCellProps()}
-                      style={{ width: cell.column.width }}
-                    >
-                      {" "}
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
+      <div className="tableNeedList-wrapper">
+        <table className="tableNeedList">
+          <thead>
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                    {column.render("Header")}
+                    <span>
+                      <FaSort />
+                    </span>
+                  </th>
+                ))}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {page.map((row) => {
+              prepareRow(row);
+              return (
+                <tr
+                  {...row.getRowProps()}
+                  onClick={() => handleRowClick(row.original)}
+                >
+                  {row.cells.map((cell) => {
+                    return (
+                      <td
+                        {...cell.getCellProps()}
+                        style={{ width: cell.column.width }}
+                      >
+                        {" "}
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
       <div className="pageNav">
         <div className="needsPerPage">
@@ -545,6 +556,16 @@ export const NeedsTable = ({ props, filterByEntity }) => {
 
       {/* Open nominations and need info page as popup */}
       {showPopup && <ModifyNeed handleClose={handleRowClick} data={rowData} />}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <MuiAlert onClose={() => setSnackbarOpen(false)} severity="info" sx={{ width: '100%' }}>
+          {snackbarMsg}
+        </MuiAlert>
+      </Snackbar>
     </div>
   );
 };
