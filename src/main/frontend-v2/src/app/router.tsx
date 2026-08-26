@@ -13,6 +13,11 @@ import { ProtectedRoute } from '@features/auth/guards/ProtectedRoute';
 // Eager-loaded pages (small, critical path)
 import { HomePage } from '@features/home/pages/HomePage';
 
+// Onboarding (public, lazy-loaded)
+const OnboardingPage = lazy(() =>
+  import('@features/onboarding/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })),
+);
+
 // Lazy-loaded pages
 const RegistrationPage = lazy(() =>
   import('@features/auth/pages/RegistrationPage').then((m) => ({ default: m.RegistrationPage })),
@@ -44,11 +49,26 @@ const EntitiesPage = lazy(() =>
 const AgenciesPage = lazy(() =>
   import('@features/entities/pages/AgenciesPage').then((m) => ({ default: m.AgenciesPage })),
 );
+const MyAgencyPage = lazy(() =>
+  import('@features/entities/pages/MyAgencyPage').then((m) => ({ default: m.MyAgencyPage })),
+);
+const AgencyScopePage = lazy(() =>
+  import('@features/entities/pages/AgencyScopePage').then((m) => ({ default: m.AgencyScopePage })),
+);
 const SessionsPage = lazy(() =>
   import('@features/sessions/pages/SessionsPage').then((m) => ({ default: m.SessionsPage })),
 );
 const PlaceholderPage = lazy(() =>
   import('@shared/components/PlaceholderPage').then((m) => ({ default: m.PlaceholderPage })),
+);
+const ApprovalsPage = lazy(() =>
+  import('@features/approvals/pages/ApprovalsPage').then((m) => ({ default: m.ApprovalsPage })),
+);
+const CoordinatorsPage = lazy(() =>
+  import('@features/approvals/pages/CoordinatorsPage').then((m) => ({ default: m.CoordinatorsPage })),
+);
+const OnboardingRequestsPage = lazy(() =>
+  import('@features/onboarding/pages/OnboardingRequestsPage').then((m) => ({ default: m.OnboardingRequestsPage })),
 );
 
 // Volunteer/Explore pages
@@ -120,6 +140,14 @@ export const router = createBrowserRouter([
           </SuspenseWrapper>
         ),
       },
+      {
+        path: '/onboard',
+        element: (
+          <SuspenseWrapper>
+            <OnboardingPage />
+          </SuspenseWrapper>
+        ),
+      },
     ],
   },
 
@@ -132,6 +160,30 @@ export const router = createBrowserRouter([
         element: <AdminLayout />,
         children: [
           { index: true, element: <Navigate to="dashboard" replace /> },
+          {
+            path: 'approvals',
+            element: (
+              <SuspenseWrapper>
+                <ApprovalsPage />
+              </SuspenseWrapper>
+            ),
+          },
+          {
+            path: 'onboarding-requests',
+            element: (
+              <SuspenseWrapper>
+                <OnboardingRequestsPage />
+              </SuspenseWrapper>
+            ),
+          },
+          {
+            path: 'coordinators',
+            element: (
+              <SuspenseWrapper>
+                <CoordinatorsPage />
+              </SuspenseWrapper>
+            ),
+          },
           {
             path: 'dashboard',
             element: (
@@ -212,6 +264,22 @@ export const router = createBrowserRouter([
             element: (
               <SuspenseWrapper>
                 <AgenciesPage />
+              </SuspenseWrapper>
+            ),
+          },
+          {
+            path: 'my-agency',
+            element: (
+              <SuspenseWrapper>
+                <MyAgencyPage />
+              </SuspenseWrapper>
+            ),
+          },
+          {
+            path: 'agency-scope',
+            element: (
+              <SuspenseWrapper>
+                <AgencyScopePage />
               </SuspenseWrapper>
             ),
           },
